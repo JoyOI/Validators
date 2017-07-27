@@ -1,5 +1,7 @@
 #include <iostream>
 #include <fstream>
+#include <cstdio>
+#include <algorithm>
 
 using namespace std;
 
@@ -14,7 +16,7 @@ struct RetInfo{
 
 const int AC_CODE = 0, PE_CODE = 1, WA_CODE = 2;//return code
 const int MaxSize = 100 * 1024 * 1024;//100MB
-char OutData[MaxSize], StdData[MaxSize], InData[100];//Data
+char OutData[MaxSize], StdData[MaxSize];//Data
 char *OutPtr, *StdPtr;//Data pointer
 int CountLine = 1;
 //Var and arr
@@ -32,23 +34,24 @@ int Judge();
 
 int main(int argc, char* argv[], char* envp[])
 {
-	if (argc != 4)
+	FILE *OutDataFP,*StdDataFP;
+	if (argc < 3)
 	{
-		cerr << "Missing arguments." << endl;
-		return -1;
+		OutDataFP = fopen("out.txt","r");
+		StdDataFP = fopen("std.txt","r");
 	}
-	SECURITY_ATTRIBUTES sa;
-	ZeroMemory(&sa, sizeof(sa));
-	sa.nLength = sizeof(SECURITY_ATTRIBUTES);
-	sa.bInheritHandle = TRUE;
-	sa.lpSecurityDescriptor = NULL;
-	HANDLE hStd, hOut;
-	DWORD ReadCount;
-	hStd = CreateFileA(argv[1], GENERIC_READ, FILE_SHARE_WRITE | FILE_SHARE_READ, &sa, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, NULL);
-	hOut = CreateFileA(argv[2], GENERIC_READ, FILE_SHARE_WRITE | FILE_SHARE_READ, &sa, OPEN_EXISTING, FILE_ATTRIBUTE_READONLY, NULL);
-	ReadFile(hStd, StdData, MaxSize - 1, &ReadCount, NULL);
-	ReadFile(hOut, OutData, MaxSize - 1, &ReadCount, NULL);
-	return Judge();
+	else
+    {
+        OutDataFP = fopen(argv[1],"r");
+		StdDataFP = fopen(argv[2],"r");
+    }
+
+	fread(OutData,sizeof(char),MaxSize,OutDataFP);
+	fread(StdData,sizeof(char),MaxSize,StdDataFP);
+	auto RET = Judge();
+	fclose(OutDataFP);
+	fclose(StdDataFP);
+	return RET;
 }
 
 int AC()
@@ -58,9 +61,8 @@ int AC()
 
 int WA()
 {
-	char *StdPtrT = max(StdData, StdPtr - 10), *OutPtrT = max(OutData, OutPtr - 10);
+	char *StdPtrT = max((char*)StdData, StdPtr - 10), *OutPtrT = max((char*)OutData, OutPtr - 10);
 	int i;
-	bool flag = false;
 	cout << "<p>第<span style='color:red'>" << CountLine << "</span>行与答案输出不匹配</p>" << endl;
 	cout << "<p>答案输出：</p><pre>";
 	if (StdPtrT != StdData)
