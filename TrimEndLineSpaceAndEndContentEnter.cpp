@@ -41,10 +41,10 @@ int main(int argc, char* argv[], char* envp[])
 		StdDataFP = fopen("std.txt","r");
 	}
 	else
-    {
-        OutDataFP = fopen(argv[1],"r");
+    	{
+        	OutDataFP = fopen(argv[1],"r");
 		StdDataFP = fopen(argv[2],"r");
-    }
+    	}
 
 	fread(OutData,sizeof(char),MaxSize,OutDataFP);
 	fread(StdData,sizeof(char),MaxSize,StdDataFP);
